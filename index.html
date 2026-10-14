@@ -708,6 +708,8 @@ background:radial-gradient(circle at 10% 14%,transparent 54px,rgba(217,168,108,.
 .vw-i p{margin-left:auto!important;margin-right:auto!important;text-align:center!important;width:auto!important}.vw-a{max-width:46ch}.vw-x em{border:0!important;background:none!important;padding:0!important;box-shadow:none!important;border-radius:0!important;display:inline!important}.vw-x{max-width:52ch}
 /* TRANSITIONS */
 main section[id^="cat-"]{position:relative}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.5s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+@media(prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 @keyframes tfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 main.tfade{animation:tfade .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
@@ -1412,6 +1414,7 @@ const RUR=new RegExp('(?<![A-Za-z@])('+RUK.map(k=>k.replace(/[.*+?^${}()|[\]\\]/
 const RUX=()=>{if(LANG!=='ru'||edit)return;const w=document.createTreeWalker(document.getElementById('root'),NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){if(n.parentElement.closest('script,style'))continue;let s=n.nodeValue;if(!/[A-Za-z]/.test(s))continue;s=s.replace(RUR,m=>RUD[m]).replace(/(\d+)\.(\d+)\s*L\b/g,'$1,$2 л').replace(/(\d+)\s*ml\b/g,'$1 мл').replace(/(\d+),?(\d*)L\b/g,'$1,$2 л');if(s!==n.nodeValue)n.nodeValue=s}};
 const SECOL={"cat-cock": ["#0d0d0d", "#0d0d0d"], "cat-cof": ["#f6f1e7", "#f6f1e7"], "cat-lem": ["#fdfaf3", "#f6efe2"], "cat-tea": ["#fdf9f3", "#f4ecdc"], "cat-sp": ["#2a1c18", "#081a11"], "cat-jager": ["#114b29", "#042010"], "cat-beer": ["#1c1411", "#1c1411"], "cat-soft": ["#f7ebd7", "#e9d8b8"], "cat-x62gapjt6u": ["#321018", "#130608"]};
 let FADE=0;
+function SMOOTH(f){try{if(!matchMedia('(prefers-reduced-motion:no-preference)').matches||!document.startViewTransition){f();const m=document.querySelector('main');if(m&&matchMedia('(prefers-reduced-motion:no-preference)').matches){m.classList.add('tfade');setTimeout(()=>m.classList.remove('tfade'),600)}return}document.startViewTransition(f)}catch(e){f()}}
 function TRN(){try{document.querySelectorAll('main .cband').forEach(e=>e.remove());const ss=[...document.querySelectorAll('main section[id^="cat-"]')];ss.forEach((s,i)=>{const n=ss[i+1];if(!n)return;const a=SECOL[s.id],c=SECOL[n.id];if(!a||!c)return;const d=document.createElement('div');d.className='cband';d.setAttribute('aria-hidden','true');d.style.cssText='--a:'+a[1]+';--b:'+c[0];d.innerHTML='<i></i>';s.after(d)});if(FADE&&!edit){const m=document.querySelector('main');if(m){m.classList.remove('tfade');void m.offsetWidth;m.classList.add('tfade')}}FADE=0}catch(e){}}
 function render(){
 const y=window.scrollY,S=D.site,cs=D.cats.filter(c=>c.m===curM&&(edit||D.items.some(i=>i.cat===c.id&&!i.hide)));
@@ -1454,10 +1457,10 @@ else if(k==='main'){const m=D.mains.find(x=>x.id===id);if(m)m[f]=v}
 if(t.type==='checkbox'||t.dataset.re)render();});
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id;
 const ix=D.items.findIndex(x=>x.id===id),ci=D.cats.findIndex(x=>x.id===id);
-if(a==='lang'){LANG=id;try{localStorage.setItem('agoraLang',id)}catch(e){}render();return}
+if(a==='lang'){SMOOTH(()=>{LANG=id;try{localStorage.setItem('agoraLang',id)}catch(e){}render()});return}
 if(a==='adm'){return}
 if(a==='main'){FADE=1}
-if(a==='main'){curM=id;render();window.scrollTo(0,0);return}
+if(a==='main'){SMOOTH(()=>{curM=id;render();window.scrollTo({top:0,behavior:'instant'})});return}
 if(a==='exit'){location.reload();return}
 if(a==='addcat'){const n=uid(),nc={id:n,m:curM,style:'tea',n:'New category',lru:'',luz:'',gh:{}};if(ci>=0)D.cats.splice(ci+1,0,nc);else D.cats.push(nc);msg='';render();location.hash='cat-'+n;return}
 if(a==='add'){const l=D.items.filter(x=>x.cat===id).pop();D.items.push({id:uid(),cat:id,n:'New item',meta:'',ru:'',uz:'',en:'',hru:'',huz:'',hen:'',price:'',off:false,hide:false,g:l?l.g:''});}
