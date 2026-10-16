@@ -866,10 +866,10 @@ main section[id^="cat-"] .in>h2{animation-range:entry 0% entry 70%}}}
 
 .gb{display:grid;grid-template-columns:minmax(104px,170px) 1fr;gap:6px 22px;align-items:center;padding:30px 22px;border-radius:4px;position:relative;overflow:hidden}
 .gb-bt{position:relative;z-index:1}
-.gb-bt svg{display:block;width:118%;margin-left:-9%;height:auto;max-height:420px;transform:rotate(-3deg);filter:drop-shadow(0 16px 14px rgba(0,0,0,.45))}
+.gb-bt svg{display:block;width:100%;height:auto;max-height:420px;transform:none;filter:drop-shadow(0 12px 10px rgba(0,0,0,.45))}
 .gb-bd{position:relative;z-index:1;min-width:0}
 .gb-fr{max-width:none;padding:22px 14px 18px}.gb-in{max-width:none;margin-top:14px}
-.gb-bz{grid-template-columns:1fr minmax(104px,170px)}.gb-bz .gb-bt{order:2}.gb-bz .gb-bt svg{transform:rotate(3deg)}
+.gb-bz{grid-template-columns:1fr minmax(104px,170px)}.gb-bz .gb-bt{order:2}.gb-bz .gb-bt svg{transform:none}
 .gb-bs{background:repeating-conic-gradient(from 0deg at 20% 50%,rgba(255,214,120,.16) 0 5deg,transparent 5deg 10deg),radial-gradient(circle at 20% 50%,#e0383a,#9a1b21 70%);}
 .gb-bs h3{font-size:clamp(32px,9.6vw,56px)}
 .gb-bs .gb-rib{font-size:14px;letter-spacing:.28em;padding:4px 16px}
@@ -1524,16 +1524,13 @@ const GNST={d0:['12','4.5','7'],d1:['12','4.5','7'],d2:['12','4.1','52']};
 const GNLB=()=>LANG==='uz'?['ekstrakt','spirt','EBC']:LANG==='en'?['extract','ABV','EBC']:['экстракт','спирт','EBC'];
 const GNSV=()=>LANG==='uz'?'Berish: +4…+7 °C · Weizen yoki Pilsner qadah':LANG==='en'?'Serve: +4…+7 °C · Weizen or Pilsner glass':'Подача: +4…+7 °C · бокал Weizen или Pilsner';
 const GNAR={d0:'340/309',d1:'326/340',d2:'239/340'};
-const GBK={d3:'s',d4:'z',d5:'m'};const GBGL=k=>{const C={s:['#f0b230','#c57a0e','SARBAST','#b3212a','#fff','#e2b653',13],z:['#f4c24a','#d39a1c','Žatecký Gus','#faf3df','#1f4a2c','#d9a431',12],m:['#f6c752','#da9a2c','ШЫМКЕНТСКОЕ','#7e1a28','#f3e6bf','#d8b04a',7]}[k],id='gl'+k;
-const hz=k==='z'?'<rect x="30" y="64" width="90" height="176" fill="#fff" opacity=".16"/>':'';
-let bub='';for(let n=0;n<16;n++){const x=44+((n*37)%62),y=80+((n*53)%140);bub+='<circle cx="'+x+'" cy="'+y+'" r="'+(1+(n%3)*.5)+'" fill="#fff" opacity=".4"/>'}
-return '<svg viewBox="0 0 150 270" aria-hidden="true"><defs><linearGradient id="'+id+'b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+C[0]+'"/><stop offset="1" stop-color="'+C[1]+'"/></linearGradient><clipPath id="'+id+'c"><path d="M27 34L123 34L106 236Q105 246 96 246L54 246Q45 246 44 236Z"/></clipPath><linearGradient id="'+id+'h" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".25" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".25"/></linearGradient></defs>'
-+'<path d="M22 28L128 28L109 240Q108 254 94 254L56 254Q42 254 41 240Z" fill="#dfe9ea" fill-opacity=".35" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>'
-+'<g clip-path="url(#'+id+'c)"><rect x="20" y="62" width="110" height="200" fill="url(#'+id+'b)"/>'+hz+bub+'</g>'
-+'<g fill="#fffaf0"><ellipse cx="75" cy="58" rx="49" ry="14"/><circle cx="42" cy="44" r="17"/><circle cx="62" cy="36" r="19"/><circle cx="86" cy="36" r="19"/><circle cx="108" cy="44" r="17"/><ellipse cx="75" cy="50" rx="50" ry="12"/></g><ellipse cx="75" cy="58" rx="46" ry="6" fill="#f2e2b8" opacity=".7"/>'
-+'<rect x="43" y="118" width="64" height="52" rx="5" fill="'+C[3]+'" stroke="'+C[5]+'" stroke-width="2"/><rect x="47" y="122" width="56" height="44" rx="3" fill="none" stroke="'+C[5]+'" stroke-width=".8"/><text x="75" y="149" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-weight="900" font-size="'+C[6]+'" fill="'+C[4]+'">'+C[2]+'</text>'
-+'<path d="M22 28L128 28L109 240Q108 254 94 254L56 254Q42 254 41 240Z" fill="url(#'+id+'h)"/><path d="M52 254h46v6H52z" fill="#fff" opacity=".35"/></svg>'};
-
+const GBK={d3:'s',d4:'z',d5:'m'};const GBGL=k=>{const C={s:['#b3212a','#fff','#e2b653','SARBAST',11,'#f0b230','#c57a0e'],z:['#faf3df','#1f4a2c','#d9a431','Žatecký Gus',10,'#f4c24a','#d39a1c'],m:['#7e1a28','#f3e6bf','#d8b04a','ШЫМКЕНТСКОЕ',8.5,'#f6c752','#da9a2c']}[k],id='tp'+k;
+return '<svg viewBox="0 0 150 270" aria-hidden="true"><defs><linearGradient id="'+id+'c" x1="0" x2="1"><stop offset="0" stop-color="#8d979c"/><stop offset=".3" stop-color="#f7f9fa"/><stop offset=".6" stop-color="#c3cacd"/><stop offset="1" stop-color="#7b8589"/></linearGradient><linearGradient id="'+id+'h" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset=".35" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient><linearGradient id="'+id+'b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+C[5]+'"/><stop offset="1" stop-color="'+C[6]+'"/></linearGradient></defs>'
++'<path d="M58 14Q75 4 92 14L84 148L66 148Z" fill="'+C[0]+'" stroke="'+C[2]+'" stroke-width="2.4" stroke-linejoin="round"/><path d="M58 14Q75 4 92 14L84 148L66 148Z" fill="url(#'+id+'h)"/><path d="M63 40L87 40M65 128L85 128" stroke="'+C[2]+'" stroke-width="1.6"/>'
++'<text transform="translate(80 86) rotate(-90)" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-weight="900" font-size="'+C[4]+'" fill="'+C[1]+'" letter-spacing=".5">'+C[3]+'</text>'
++'<rect x="62" y="146" width="26" height="12" rx="3" fill="url(#'+id+'c)"/><rect x="40" y="156" width="70" height="30" rx="9" fill="url(#'+id+'c)" stroke="#6f787c" stroke-width="1"/><rect x="48" y="161" width="54" height="5" rx="2.5" fill="#fff" opacity=".55"/>'
++'<path d="M64 186h22l-2 30q-1 6-9 6t-9-6Z" fill="url(#'+id+'c)" stroke="#6f787c" stroke-width="1"/><ellipse cx="75" cy="221" rx="6" ry="2" fill="#4b5357"/>'
++'<path d="M73.5 222h3L77 246h-4Z" fill="url(#'+id+'b)"/><ellipse cx="75" cy="252" rx="4" ry="5.5" fill="'+C[5]+'"/><ellipse cx="75" cy="262" rx="14" ry="3" fill="'+C[6]+'" opacity=".55"/></svg>'};
 const GBI=i=>{const k=GBK[i.id],nm=String(NM(i)),sp=nm.indexOf(' ');let top='',main=nm,rib='',foot='',dsc=(i.ru||i.uz)?U(i.ru,i.uz,i.en):'';
 if(k==='s'){top='Uzbekistan finest beer';main=sp>0?nm.slice(0,sp):nm;rib=sp>0?nm.slice(sp+1):'';foot='Since 2007'}
 else if(k==='z'){top='Tradičně světlé nefiltrované pivo';rib=dsc;dsc='';foot='Uvařeno se žateckým chmelem'}
