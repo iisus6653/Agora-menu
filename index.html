@@ -274,11 +274,11 @@ function admModal(i,isNew){
  g('a_ok').onclick=()=>{
   const v={nr:g('a_nr').value.trim(),n:g('a_n').value.trim()||g('a_nr').value.trim(),price:g('a_price').value.trim(),meta:g('a_meta').value.trim(),ru:g('a_ru').value.trim(),uz:g('a_uz').value.trim(),en:g('a_en').value.trim(),nu:g('a_nu').value.trim(),hide:g('a_hide').checked,off:g('a_off').checked};
   if(imgCh&&isNew){v.img=imgVal;v.imgfit=imgVal?'cover':''}
-  if(!v.n){alert('Введите название');return}
+  if(!v.n){admToast('Введите название');return}
   if(isNew){const it=Object.assign({id:'x'+Date.now(),cat:g('a_cat').value,uz:'',en:'',vs:'',sg:'',g:'',p1:'',bs:'',cc:'',nu:''},v);NEWI.push(it);D.items.push(it);byId[it.id]=it}
   else{OVR[i.id]=Object.assign(OVR[i.id]||{},v);Object.assign(i,v)}
   admSave();close();const y=scrollY;render();scrollTo(0,y)};
- if(!isNew){g('a_rs').onclick=()=>{if(!confirm('Сбросить все ваши правки этой позиции?'))return;delete OVR[i.id];admSave();location.reload()};
+ if(!isNew){g('a_rs').onclick=async()=>{if(!await admYes('Сбросить все ваши правки этой позиции?'))return;delete OVR[i.id];admSave();location.reload()};
   g('a_dl').onclick=()=>{OVR[i.id]=Object.assign(OVR[i.id]||{},{hide:true});i.hide=true;admSave();close();const y=scrollY;render();scrollTo(0,y)}}
 }
 
@@ -289,9 +289,17 @@ function admPick(bx,label,cur,onSet,maxW,aspectHint){
  const pv=document.createElement('img');pv.style.cssText='display:block;max-width:100%;max-height:150px;border-radius:10px;margin:6px 0;background:#eee';if(cur)pv.src=cur;else pv.style.display='none';w.appendChild(pv);
  const f=document.createElement('input');f.type='file';f.accept='image/*';w.appendChild(f);
  const rm=document.createElement('button');rm.type='button';rm.textContent='Убрать фото';rm.style.cssText='margin:6px 0 0 8px;border:0;background:#fde7e7;color:#b00;border-radius:10px;padding:6px 10px';w.appendChild(rm);
- f.onchange=async()=>{if(!f.files[0])return;const u=await admShrink(f.files[0],maxW||900);if(!u){alert('Не удалось прочитать файл');return}pv.src=u;pv.style.display='block';onSet(u)};
+ f.onchange=async()=>{if(!f.files[0])return;const u=await admShrink(f.files[0],maxW||900);if(!u){admToast('Не удалось прочитать файл');return}pv.src=u;pv.style.display='block';onSet(u)};
  rm.onclick=()=>{pv.style.display='none';f.value='';onSet('')};
  bx.appendChild(w)}
+
+function admToast(m){const t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:600;background:#222;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;max-width:90%;text-align:center';document.body.appendChild(t);setTimeout(()=>t.remove(),4500)}
+function admAsk(msg,def,multi){return new Promise(res=>{const o=document.createElement('div');o.className='adm-modal';o.style.alignItems='center';const bx=document.createElement('div');bx.className='adm-box';bx.style.cssText='border-radius:20px;max-width:420px;margin:16px';o.appendChild(bx);
+ const p=document.createElement('div');p.textContent=msg;p.style.cssText='font-size:14px;margin-bottom:10px;white-space:pre-line';bx.appendChild(p);
+ const i=document.createElement(multi?'textarea':'input');if(!multi)i.type='text';i.value=def||'';i.autocomplete='off';bx.appendChild(i);
+ const bt=document.createElement('div');bt.className='adm-btns';const ok=document.createElement('button');ok.className='adm-ok';ok.textContent='OK';const no=document.createElement('button');no.className='adm-no';no.textContent='Отмена';bt.appendChild(ok);bt.appendChild(no);bx.appendChild(bt);document.body.appendChild(o);i.focus();
+ const done=v=>{o.remove();res(v)};ok.onclick=()=>done(i.value);no.onclick=()=>done(null);i.addEventListener('keydown',e=>{if(e.key==='Enter'&&!multi)done(i.value)})})}
+function admYes(msg){return new Promise(res=>{const o=document.createElement('div');o.className='adm-modal';o.style.alignItems='center';const bx=document.createElement('div');bx.className='adm-box';bx.style.cssText='border-radius:20px;max-width:420px;margin:16px';o.appendChild(bx);const p=document.createElement('div');p.textContent=msg;p.style.cssText='font-size:15px;margin-bottom:10px';bx.appendChild(p);const bt=document.createElement('div');bt.className='adm-btns';const ok=document.createElement('button');ok.className='adm-ok';ok.textContent='Да';const no=document.createElement('button');no.className='adm-no';no.textContent='Нет';bt.appendChild(ok);bt.appendChild(no);bx.appendChild(bt);document.body.appendChild(o);ok.onclick=()=>{o.remove();res(true)};no.onclick=()=>{o.remove();res(false)}})}
 function admField(box,label,id,val,ta){const l=document.createElement('label');l.textContent=label;box.appendChild(l);const e=document.createElement(ta?'textarea':'input');if(!ta)e.type='text';e.id=id;e.value=val||'';box.appendChild(e)}
 function admForm(title,fields,onOk,extra){
  const o=document.createElement('div');o.className='adm-modal';const bx=document.createElement('div');bx.className='adm-box';o.appendChild(bx);
@@ -321,29 +329,29 @@ function admLoad(st){OVR=st.ovr||{};NEWI=st.new||[];OVS=st.site||{};OVC=st.cats|
 async function loadShared(){try{const r=await fetch('overrides.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const sh=await r.json();if(!sh||typeof sh!=='object')return;const m=DEV?admMerge(sh,admState()):sh;admLoad(m);if(!DEV){/* guests: keep nothing local */}admApply();const q=(document.getElementById('q')||{}).value;render(q)}catch(e){}}
 async function admPublish(){
  let tk='';try{tk=localStorage.getItem('agora_gh')||''}catch(e){}
- if(!tk){tk=(prompt('Вставьте GitHub-токен (Fine-grained, доступ Contents: Read and write к репозиторию Agora-menu). Он сохранится только на этом устройстве:')||'').trim();if(!tk)return;try{localStorage.setItem('agora_gh',tk)}catch(e){}}
+ if(!tk){tk=((await admAsk('Вставьте GitHub-токен (Fine-grained, доступ Contents: Read and write к репозиторию Agora-menu). Он сохранится только на этом устройстве.'))||'').trim();if(!tk)return;try{localStorage.setItem('agora_gh',tk)}catch(e){}}
  const api='https://api.github.com/repos/'+GH.repo+'/contents/'+GH.file,H={Authorization:'Bearer '+tk,Accept:'application/vnd.github+json'};
  try{
-  let sha;const g=await fetch(api+'?t='+Date.now(),{headers:H});if(g.ok){sha=(await g.json()).sha}else if(g.status===401||g.status===403){localStorage.removeItem('agora_gh');alert('Токен не подошёл. Нажмите «Опубликовать» ещё раз и вставьте новый.');return}
+  let sha;const g=await fetch(api+'?t='+Date.now(),{headers:H});if(g.ok){sha=(await g.json()).sha}else if(g.status===401||g.status===403){localStorage.removeItem('agora_gh');admToast('Токен не подошёл. Нажмите «Опубликовать» ещё раз и вставьте новый.');return}
   const txt=JSON.stringify(admState());const bytes=new TextEncoder().encode(txt);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));
   const p=await fetch(api,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},H),body:JSON.stringify({message:'Menu edits from admin panel',content:btoa(bin),sha})});
-  if(p.ok)alert('Опубликовано. Гости увидят изменения через 1–2 минуты.');else{const e=await p.json().catch(()=>({}));alert('Ошибка публикации: '+(e.message||p.status))}
- }catch(e){alert('Нет связи с GitHub')}}
+  if(p.ok)admToast('Опубликовано. Гости увидят изменения через 1–2 минуты.');else{const e=await p.json().catch(()=>({}));admToast('Ошибка публикации: '+(e.message||p.status))}
+ }catch(e){admToast('Нет связи с GitHub')}}
 function admBar(){
  if(!ADMIN)return;const b=document.createElement('div');b.className='adm-bar';
  b.innerHTML='<span>АДМИН (только это устройство)</span><button id="ab_add">+ Позиция</button><button id="ab_cat">+ Категория</button><button id="ab_site">Контакты</button><button id="ab_pub" style="background:#d9622b">Опубликовать для всех</button><button id="ab_tok">Токен</button><button id="ab_exp">Экспорт</button><button id="ab_imp">Импорт</button><button id="ab_rst">Сбросить всё</button><button id="ab_out">Выйти</button>';
  document.body.appendChild(b);
- b.querySelector('#ab_add').onclick=()=>admModal({},true);b.querySelector('#ab_pub').onclick=admPublish;b.querySelector('#ab_tok').onclick=()=>{const t=(prompt('Новый GitHub-токен (пусто — удалить):')||'').trim();try{if(t)localStorage.setItem('agora_gh',t);else localStorage.removeItem('agora_gh')}catch(e){}};b.querySelector('#ab_cat').onclick=()=>admCat({},true);b.querySelector('#ab_site').onclick=admSite;
- b.querySelector('#ab_exp').onclick=()=>{const t=JSON.stringify({ovr:OVR,new:NEWI,site:OVS,cats:OVC,newc:NEWC});if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>alert('Правки скопированы в буфер обмена'),()=>prompt('Скопируйте:',t));else prompt('Скопируйте:',t)};
- b.querySelector('#ab_imp').onclick=()=>{const t=prompt('Вставьте экспортированные правки:');if(!t)return;try{const j=JSON.parse(t);OVR=j.ovr||{};NEWI=j.new||[];OVS=j.site||{};OVC=j.cats||{};NEWC=j.newc||[];admSave();location.reload()}catch(e){alert('Неверный формат')}};
- b.querySelector('#ab_rst').onclick=()=>{if(confirm('Удалить ВСЕ правки на этом устройстве?')){OVR={};NEWI=[];OVS={};OVC={};NEWC=[];admSave();location.reload()}};
+ b.querySelector('#ab_add').onclick=()=>admModal({},true);b.querySelector('#ab_pub').onclick=admPublish;b.querySelector('#ab_tok').onclick=async()=>{const t=((await admAsk('Новый GitHub-токен (пусто — удалить):'))||'').trim();try{if(t)localStorage.setItem('agora_gh',t);else localStorage.removeItem('agora_gh')}catch(e){}};b.querySelector('#ab_cat').onclick=()=>admCat({},true);b.querySelector('#ab_site').onclick=admSite;
+ b.querySelector('#ab_exp').onclick=()=>{const t=JSON.stringify({ovr:OVR,new:NEWI,site:OVS,cats:OVC,newc:NEWC});if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>admToast('Правки скопированы в буфер обмена'),()=>admAsk('Скопируйте текст:',t,true));else admAsk('Скопируйте текст:',t,true)};
+ b.querySelector('#ab_imp').onclick=async()=>{const t=await admAsk('Вставьте экспортированные правки:','',true);if(!t)return;try{const j=JSON.parse(t);OVR=j.ovr||{};NEWI=j.new||[];OVS=j.site||{};OVC=j.cats||{};NEWC=j.newc||[];admSave();location.reload()}catch(e){admToast('Неверный формат')}};
+ b.querySelector('#ab_rst').onclick=async()=>{if(await admYes('Удалить ВСЕ правки на этом устройстве?')){OVR={};NEWI=[];OVS={};OVC={};NEWC=[];admSave();location.reload()}};
  b.querySelector('#ab_out').onclick=()=>{try{localStorage.removeItem('agora_admin')}catch(e){}location.href=location.pathname}
 }
 document.addEventListener('click',e=>{const bc=e.target.closest('[data-admcat]');if(bc){e.stopPropagation();const c=D.cats.find(x=>x.id===bc.dataset.admcat);if(c)admCat(c,false);return}const b=e.target.closest('[data-adm]');if(!b)return;e.stopPropagation();const it=byId[b.dataset.adm];if(it)admModal(it,false)},true);
 
 (function(){let n=0,t=0;document.addEventListener('click',async e=>{const f=e.target.closest('.place-content__footer');if(!f||e.target.closest('button'))return;if(DEV)return;const now=Date.now();if(now-t>6000)n=0;t=now;n++;if(n<7)return;n=0;
- let bad=+(localStorage.getItem('agora_bad')||0);if(bad>=5){alert('Слишком много попыток');return}
- const c=prompt('Код доступа:');if(!c)return;
+ let bad=+(localStorage.getItem('agora_bad')||0);if(bad>=5){admToast('Слишком много попыток');return}
+ const c=await admAsk('Код доступа:');if(!c)return;
  try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('agora-admin-v2:'+c.trim()));const h=[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');
   if(h==='4f60bc691ea02d47c8d4029d70fcc84c7a407645a072b3c14b81bc5d5c7cbd52'){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');localStorage.removeItem('agora_bad');location.reload()}else{localStorage.setItem('agora_bad',bad+1)}}catch(x){}})})();
 admBar();
