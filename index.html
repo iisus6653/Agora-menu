@@ -169,8 +169,7 @@ const hs=i=>i['h'+lang]||i.hru||'';
 const ld=c=>c['l'+lang]||c.lru||'';
 const save=()=>{try{localStorage.setItem('cart',JSON.stringify(cart));localStorage.setItem('lg',lang)}catch(e){}};
 
-const cyrb53=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
-const DEV=(()=>{try{const m=location.search.match(/[?&]admin=([^&]+)/);if(m&&cyrb53('agora:'+decodeURIComponent(m[1]))===5200716758109382){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');history.replaceState(null,'',location.pathname+location.hash)}return localStorage.getItem('agora_dev')==='1'}catch(e){return false}})();
+const DEV=(()=>{try{return localStorage.getItem('agora_dev')==='1'}catch(e){return false}})();
 const ADMIN=(()=>{try{return DEV&&localStorage.getItem('agora_admin')==='1'}catch(e){return false}})();
 let OVR={},NEWI=[],OVS={},OVC={},NEWC=[];try{OVR=JSON.parse(localStorage.getItem('agora_ovr')||'{}');NEWI=JSON.parse(localStorage.getItem('agora_new')||'[]');OVS=JSON.parse(localStorage.getItem('agora_site')||'{}');OVC=JSON.parse(localStorage.getItem('agora_cats')||'{}');NEWC=JSON.parse(localStorage.getItem('agora_newc')||'[]')}catch(e){}
 function admSave(){try{localStorage.setItem('agora_ovr',JSON.stringify(OVR));localStorage.setItem('agora_new',JSON.stringify(NEWI));localStorage.setItem('agora_site',JSON.stringify(OVS));localStorage.setItem('agora_cats',JSON.stringify(OVC));localStorage.setItem('agora_newc',JSON.stringify(NEWC))}catch(e){}}
@@ -341,6 +340,12 @@ function admBar(){
  b.querySelector('#ab_out').onclick=()=>{try{localStorage.removeItem('agora_admin')}catch(e){}location.href=location.pathname}
 }
 document.addEventListener('click',e=>{const bc=e.target.closest('[data-admcat]');if(bc){e.stopPropagation();const c=D.cats.find(x=>x.id===bc.dataset.admcat);if(c)admCat(c,false);return}const b=e.target.closest('[data-adm]');if(!b)return;e.stopPropagation();const it=byId[b.dataset.adm];if(it)admModal(it,false)},true);
+
+(function(){let n=0,t=0;document.addEventListener('click',async e=>{const f=e.target.closest('.place-content__footer');if(!f||e.target.closest('button'))return;if(DEV)return;const now=Date.now();if(now-t>6000)n=0;t=now;n++;if(n<7)return;n=0;
+ let bad=+(localStorage.getItem('agora_bad')||0);if(bad>=5){alert('Слишком много попыток');return}
+ const c=prompt('Код доступа:');if(!c)return;
+ try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('agora-admin-v2:'+c.trim()));const h=[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(h==='4f60bc691ea02d47c8d4029d70fcc84c7a407645a072b3c14b81bc5d5c7cbd52'){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');localStorage.removeItem('agora_bad');location.reload()}else{localStorage.setItem('agora_bad',bad+1)}}catch(x){}})})();
 admBar();
 document.addEventListener('click',e=>{if(e.target.id==='admtoggle'){try{if(ADMIN)localStorage.removeItem('agora_admin');else localStorage.setItem('agora_admin','1')}catch(x){}location.reload()}});
 window.addEventListener('hashchange',()=>render());render();loadShared();
