@@ -180,7 +180,16 @@ return `${back?`<div class="place-nav"><div class="place-nav__inner"><button cla
 <div class="menu-item-search" id="srch"><form class="menu-item-search-form" onsubmit="return false"><div class="menu-item-search-form-field"><div class="base-form-input"><input class="base-form-input-input" id="q" type="search" placeholder="${t('search')}"></div><button class="round-button menu-item-search-form-button" aria-label="${t('search')}" type="button">${IC_SEARCH}</button></div></form></div>
 <div class="cafe-list" id="body"></div><div class="place-content__footer">Agora Lounge &amp; Bar · Tashkent</div></div></div>`}
 const CBG=['linear-gradient(135deg,#b5653a,#5a2c14)','linear-gradient(135deg,#3f7d73,#173a36)','linear-gradient(135deg,#b06088,#4a1d33)','linear-gradient(135deg,#c4a24a,#5c4a14)','linear-gradient(135deg,#5b78b5,#1d2c52)','linear-gradient(135deg,#8a63b5,#33194f)','linear-gradient(135deg,#b55b5b,#4d1a1a)','linear-gradient(135deg,#5ea074,#1d3f2a)'];
-function homeBody(){return `<div class="category-list">${D.cats.filter(c=>(c.m||'bar')===tab).map((c,k)=>`<div class="category-list__item"><div class="category-item"><button class="category-item__link" style="background-image:${CBG[k%CBG.length]}" data-cat="${c.id}"><h2 class="h2">${E(cn(c))}</h2></button></div></div>`).join('')}</div>`}
+
+const EMO={cock:'🍸',cof:'☕',lem:'🍋',fresh:'🍊',tea:'🍵',sp:'🥃',jager:'🦌',beer:'🍺',soft:'🥤',x62gapjt6u:'🍷',snack:'🥨',hk_ex:'💨',hk_mix:'💨',hk_custom:'💨'};
+function tileImg(c){const own=D.items.filter(i=>i.cat===c.id&&i.img);if(own.length)return own[0];if(c.m==='hookah'){const ex=D.items.filter(i=>i.cat==='hk_ex'&&i.img);if(ex.length)return ex[(c.id==='hk_mix'?3:6)%ex.length]}return null}
+function tileBg(c,k){
+ const it=tileImg(c);
+ if(it){return `linear-gradient(rgba(20,12,8,.25),rgba(20,12,8,.35)),url(${it.img})`}
+ const e=EMO[c.id]||'🍹';
+ const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><text x='8' y='40' font-size='30' opacity='.22'>${e}</text><text x='52' y='82' font-size='22' opacity='.16'>${e}</text></svg>`;
+ return `url(data:image/svg+xml,${encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29')}),${CBG[k%CBG.length]}`}
+function homeBody(){return `<div class="category-list">${D.cats.filter(c=>(c.m||'bar')===tab).map((c,k)=>`<div class="category-list__item"><div class="category-item"><button class="category-item__link" style="background-image:${tileBg(c,k)};background-size:${tileImg(c)?'cover':'90px 90px,cover'};background-position:${tileImg(c)?'center 62%':'center'}" data-cat="${c.id}"><h2 class="h2">${E(cn(c))}</h2></button></div></div>`).join('')}</div>`}
 function customBody(c){const C=D.custom,L=CU[lang];const brands=[];C.tob.forEach((x,j)=>{let g=brands.find(b=>b.b===x[0]);if(!g){g={b:x[0],a:[]};brands.push(g)}g.a.push([j,x[1]])});
 const n=cu.sel.length;
 return `<div class="menu-item-list cu"><h2 class="h2 menu-item-list__title">${E(cn(c))}</h2><p class="menu-item-list__description">${E(L.hint)}</p>
