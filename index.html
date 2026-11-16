@@ -169,7 +169,9 @@ const hs=i=>i['h'+lang]||i.hru||'';
 const ld=c=>c['l'+lang]||c.lru||'';
 const save=()=>{try{localStorage.setItem('cart',JSON.stringify(cart));localStorage.setItem('lg',lang)}catch(e){}};
 
-const ADMIN=(()=>{try{if(/[?&]admin\b/.test(location.search)){localStorage.setItem('agora_admin','1')}if(/[?&]admin=0/.test(location.search)){localStorage.removeItem('agora_admin')}return localStorage.getItem('agora_admin')==='1'}catch(e){return /[?&]admin\b/.test(location.search)}})();
+const cyrb53=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
+const DEV=(()=>{try{const m=location.search.match(/[?&]admin=([^&]+)/);if(m&&cyrb53('agora:'+decodeURIComponent(m[1]))===5200716758109382){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');history.replaceState(null,'',location.pathname+location.hash)}return localStorage.getItem('agora_dev')==='1'}catch(e){return false}})();
+const ADMIN=(()=>{try{return DEV&&localStorage.getItem('agora_admin')==='1'}catch(e){return false}})();
 let OVR={},NEWI=[];try{OVR=JSON.parse(localStorage.getItem('agora_ovr')||'{}');NEWI=JSON.parse(localStorage.getItem('agora_new')||'[]')}catch(e){}
 function admSave(){try{localStorage.setItem('agora_ovr',JSON.stringify(OVR));localStorage.setItem('agora_new',JSON.stringify(NEWI))}catch(e){}}
 function admApply(){NEWI.forEach(n=>{if(!D.items.find(x=>x.id===n.id))D.items.push(Object.assign({},n))});D.items.forEach(i=>{const o=OVR[i.id];if(o)Object.assign(i,o)})}
@@ -194,7 +196,7 @@ return `${back?`<div class="place-nav"><div class="place-nav__inner"><button cla
 <div class="place-content wrapper"><h1 class="place-title">Agora Lounge &amp; Bar</h1><div class="place-info"><div class="place-info__address"><div class="place-info__block">${ICON.pin}<a href="${E(s.map)}" target="_blank">${E(a)}</a></div><div class="place-info__block">${ICON.tel}<a href="tel:${s.phone.replace(/\s/g,'')}">${E(s.phone)}</a></div><div class="place-info__block">${ICON.ig}<a href="https://instagram.com/${s.ig}" target="_blank">${E(s.ig)}</a></div><div class="place-info__block">${ICON.tg}<a href="https://t.me/${s.tg}" target="_blank">${E(s.tg)}</a></div></div><div class="place-info__description"><p>${t('info')}</p></div></div>
 <div class="menu-list" id="mlist"><div class="base-scrollbar">${[['bar',{ru:'Бар',en:'Bar',uz:'Bar'}],['hookah',{ru:'Кальяны',en:'Hookahs',uz:'Kalyanlar'}]].map(([k,n])=>`<div class="menu ${k===tab?'_selected':''}"><button class="menu__button" data-tab="${k}">${n[lang]}</button></div>`).join('')}</div></div></div>
 <div class="menu-item-search" id="srch"><form class="menu-item-search-form" onsubmit="return false"><div class="menu-item-search-form-field"><div class="base-form-input"><input class="base-form-input-input" id="q" type="search" placeholder="${t('search')}"></div><button class="round-button menu-item-search-form-button" aria-label="${t('search')}" type="button">${IC_SEARCH}</button></div></form></div>
-<div class="cafe-list" id="body"></div><div class="place-content__footer">Agora Lounge &amp; Bar · Tashkent</div></div></div>`}
+<div class="cafe-list" id="body"></div><div class="place-content__footer">Agora Lounge &amp; Bar · Tashkent${DEV?`<div style="margin-top:8px"><button id="admtoggle" style="background:none;border:1px solid #ccc;border-radius:12px;padding:4px 12px;color:#999;font-size:12px">⚙ Админ: ${ADMIN?"вкл":"выкл"}</button></div>`:""}</div></div></div>`}
 const CBG=['linear-gradient(135deg,#b5653a,#5a2c14)','linear-gradient(135deg,#3f7d73,#173a36)','linear-gradient(135deg,#b06088,#4a1d33)','linear-gradient(135deg,#c4a24a,#5c4a14)','linear-gradient(135deg,#5b78b5,#1d2c52)','linear-gradient(135deg,#8a63b5,#33194f)','linear-gradient(135deg,#b55b5b,#4d1a1a)','linear-gradient(135deg,#5ea074,#1d3f2a)'];
 
 const EMO={cock:'🍸',cof:'☕',lem:'🍋',fresh:'🍊',tea:'🍵',sp:'🥃',jager:'🦌',beer:'🍺',soft:'🥤',x62gapjt6u:'🍷',snack:'🥨',hk_ex:'💨',hk_mix:'💨',hk_custom:'💨'};
@@ -289,5 +291,6 @@ function admBar(){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-adm]');if(!b)return;e.stopPropagation();const it=byId[b.dataset.adm];if(it)admModal(it,false)},true);
 admBar();
+document.addEventListener('click',e=>{if(e.target.id==='admtoggle'){try{if(ADMIN)localStorage.removeItem('agora_admin');else localStorage.setItem('agora_admin','1')}catch(x){}location.reload()}});
 window.addEventListener('hashchange',()=>render());render();
 </script></body></html>
