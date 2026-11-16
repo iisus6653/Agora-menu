@@ -172,9 +172,9 @@ const save=()=>{try{localStorage.setItem('cart',JSON.stringify(cart));localStora
 const cyrb53=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)};
 const DEV=(()=>{try{const m=location.search.match(/[?&]admin=([^&]+)/);if(m&&cyrb53('agora:'+decodeURIComponent(m[1]))===5200716758109382){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');history.replaceState(null,'',location.pathname+location.hash)}return localStorage.getItem('agora_dev')==='1'}catch(e){return false}})();
 const ADMIN=(()=>{try{return DEV&&localStorage.getItem('agora_admin')==='1'}catch(e){return false}})();
-let OVR={},NEWI=[];try{OVR=JSON.parse(localStorage.getItem('agora_ovr')||'{}');NEWI=JSON.parse(localStorage.getItem('agora_new')||'[]')}catch(e){}
-function admSave(){try{localStorage.setItem('agora_ovr',JSON.stringify(OVR));localStorage.setItem('agora_new',JSON.stringify(NEWI))}catch(e){}}
-function admApply(){NEWI.forEach(n=>{if(!D.items.find(x=>x.id===n.id))D.items.push(Object.assign({},n))});D.items.forEach(i=>{const o=OVR[i.id];if(o)Object.assign(i,o)})}
+let OVR={},NEWI=[],OVS={},OVC={},NEWC=[];try{OVR=JSON.parse(localStorage.getItem('agora_ovr')||'{}');NEWI=JSON.parse(localStorage.getItem('agora_new')||'[]');OVS=JSON.parse(localStorage.getItem('agora_site')||'{}');OVC=JSON.parse(localStorage.getItem('agora_cats')||'{}');NEWC=JSON.parse(localStorage.getItem('agora_newc')||'[]')}catch(e){}
+function admSave(){try{localStorage.setItem('agora_ovr',JSON.stringify(OVR));localStorage.setItem('agora_new',JSON.stringify(NEWI));localStorage.setItem('agora_site',JSON.stringify(OVS));localStorage.setItem('agora_cats',JSON.stringify(OVC));localStorage.setItem('agora_newc',JSON.stringify(NEWC))}catch(e){}}
+function admApply(){Object.assign(D.site,OVS);NEWC.forEach(n=>{if(!D.cats.find(x=>x.id===n.id))D.cats.push(Object.assign({},n))});D.cats.forEach(c=>{const o=OVC[c.id];if(o)Object.assign(c,o)});NEWI.forEach(n=>{if(!D.items.find(x=>x.id===n.id))D.items.push(Object.assign({},n))});D.items.forEach(i=>{const o=OVR[i.id];if(o)Object.assign(i,o)})}
 admApply();
 const byId={};D.items.forEach(i=>byId[i.id]=i);
 function sizeLbl(x){x=String(x).trim();if(!/^\d+$/.test(x))return x;const n=+x;return n>=1000?(n/1000)+' '+({ru:'л',en:'L',uz:'l'}[lang]||'L'):n+' '+({ru:'мл',en:'ml',uz:'ml'}[lang]||'ml')}
@@ -208,7 +208,7 @@ function tileBg(c,k){
  const e=EMO[c.id]||'🍹';
  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90'><text x='8' y='40' font-size='30' opacity='.22'>${e}</text><text x='52' y='82' font-size='22' opacity='.16'>${e}</text></svg>`;
  return `url(data:image/svg+xml,${encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29')}),${CBG[k%CBG.length]}`}
-function homeBody(){return `<div class="category-list">${D.cats.filter(c=>(c.m||'bar')===tab).map((c,k)=>`<div class="category-list__item"><div class="category-item"><button class="category-item__link" style="background-image:${tileBg(c,k)};background-size:${tileImg(c)?(TILE[c.id]?'190% auto':'cover'):'90px 90px,cover'};background-position:${tileImg(c)?(TILE[c.id]?'100% 68%':'center 62%'):'center'}" data-cat="${c.id}"><h2 class="h2">${E(cn(c))}</h2></button></div></div>`).join('')}</div>`}
+function homeBody(){return `<div class="category-list">${D.cats.filter(c=>(c.m||'bar')===tab&&(!c.hide||ADMIN)).map((c,k)=>`<div class="category-list__item"><div class="category-item"><button class="category-item__link" style="background-image:${tileBg(c,k)};background-size:${tileImg(c)?(TILE[c.id]?'190% auto':'cover'):'90px 90px,cover'};background-position:${tileImg(c)?(TILE[c.id]?'100% 68%':'center 62%'):'center'}" data-cat="${c.id}"><h2 class="h2">${E(cn(c))}</h2></button></div></div>`).join('')}</div>`}
 function customBody(c){const C=D.custom,L=CU[lang];const brands=[];C.tob.forEach((x,j)=>{let g=brands.find(b=>b.b===x[0]);if(!g){g={b:x[0],a:[]};brands.push(g)}g.a.push([j,x[1]])});
 const n=cu.sel.length;
 return `<div class="menu-item-list cu"><h2 class="h2 menu-item-list__title">${E(cn(c))}</h2><p class="menu-item-list__description">${E(L.hint)}</p>
@@ -216,7 +216,7 @@ return `<div class="menu-item-list cu"><h2 class="h2 menu-item-list__title">${E(
 <div class="cu-count"><span>${L.sel}: <b>${n}</b> ${L.of} ${C.max}</span>${n?`<button class="cu-reset" data-curst="1">${L.reset}</button>`:''}</div>
 ${brands.map(g=>`<div class="cu-brand">${E(g.b)}</div><div class="cu-chips">${g.a.map(([j,nme])=>`<button class="cu-chip ${cu.sel.includes(j)?'on':''}" data-tb="${j}">${E(nme)}</button>`).join('')}</div>`).join('')}
 <div class="cu-foot">${price(C.price)}<button class="cu-add" data-cuadd="1" ${n?'':'disabled'}>${L.add}</button></div></div>`}
-function catBody(id){const c=D.cats.find(x=>x.id===id);if(!c)return '';if(id==='hk_custom')return customBody(c);const its=D.items.filter(i=>i.cat===id&&(!i.hide||ADMIN));let out=`<div class="menu-item-list"><h2 class="h2 menu-item-list__title">${E(cn(c))}</h2>`;if(ld(c))out+=`<p class="menu-item-list__description">${E(ld(c))}</p>`;let g=null;its.forEach(i=>{if((i.g||'')!==g){g=i.g||'';if(g)out+=`<div class="menu-item-list__group">${E(g.split('○')[lang==='ru'?1:lang==='uz'?2:0]||g)}</div>`}out+=card(i)});return out+'</div>'}
+function catBody(id){const c=D.cats.find(x=>x.id===id);if(!c)return '';if(id==='hk_custom')return customBody(c);const its=D.items.filter(i=>i.cat===id&&(!i.hide||ADMIN));let out=`<div class="menu-item-list"><h2 class="h2 menu-item-list__title">${E(cn(c))}</h2>${ADMIN?`<button class="adm-edit" data-admcat="${c.id}">✎ Править категорию${c.hide?' · скрыта':''}</button>`:''}`;if(ld(c))out+=`<p class="menu-item-list__description">${E(ld(c))}</p>`;let g=null;its.forEach(i=>{if((i.g||'')!==g){g=i.g||'';if(g)out+=`<div class="menu-item-list__group">${E(g.split('○')[lang==='ru'?1:lang==='uz'?2:0]||g)}</div>`}out+=card(i)});return out+'</div>'}
 function searchBody(q){q=q.toLowerCase();const r=D.items.filter(i=>(!i.hide||ADMIN)&&[i.n,i.nr,i.nu,i.ru,i.uz,i.en].join(' ').toLowerCase().includes(q));return r.length?`<div class="menu-item-list">${r.map(card).join('')}</div>`:`<p class="menu-item-search-result__empty">${t('empty')}</p>`}
 function orderBody(){const ks=Object.keys(cart).filter(k=>cart[k]>0);if(!ks.length)return `<h2 class="h2" style="margin-top:8px">${t('myorder')}</h2><p class="menu-item-search-result__empty">${t('noorder')}</p>`;let tot=0;const rows=ks.map(k=>{const {i,v}=vk(k);if(!v)return '';tot+=v.p*cart[k];return `<div class="order-item"><h3 class="order-item-title">${E(nm(i))}${v.l?` <span class="menu-item-weight">${E(v.l)}</span>`:''}</h3><div class="order-item-footer">${price(v.p,'',true)}${qbtn(k,true)}</div></div>`}).join('');
 return `<h2 class="h2" style="margin-top:8px">${t('myorder')}</h2>${rows}<div class="order-total" style="font-weight:400;color:var(--color-gray-500)"><span>${{ru:'Сумма',en:'Subtotal',uz:'Summa'}[lang]||'Сумма'}:</span>${price(tot)}</div><div class="order-total" style="font-weight:400;color:var(--color-gray-500)"><span>${{ru:'Обслуживание 10%',en:'Service charge 10%',uz:'Xizmat 10%'}[lang]||'Обслуживание 10%'}:</span>${price(Math.round(tot*0.1))}</div><div class="order-total"><span>${t('total')}:</span>${price(Math.round(tot*1.1))}</div><p class="order-hint">${t('hint')}</p>${D.site.orderUrl?`<div class="osend"><label>${OT[lang].table}<input id="otable" inputmode="numeric" maxlength="6" value="${E(tableV)}" ${tableQ?'readonly':''}></label><label>${OT[lang].comment}<textarea id="ocomm" rows="2" maxlength="300">${E(commentV)}</textarea></label><button class="cu-add osend-btn" id="osend">${OT[lang].send}</button><p class="osend-msg" id="omsg"></p></div>`:''}<button class="order-clear" id="clr">${t('clear')}</button>`}
@@ -258,20 +258,20 @@ function admModal(i,isNew){
  const cats=D.cats.filter(c=>c.id!=='hk_custom');
  o.innerHTML=`<div class="adm-box"><h3>${isNew?'Новая позиция':'Редактирование'}</h3>
  ${isNew?'<label>Категория</label><select id="a_cat"></select>':''}
- <label>Название (RU)</label><input type="text" id="a_nr"><label>Название (EN)</label><input type="text" id="a_n">
+ <label>Название (RU)</label><input type="text" id="a_nr"><label>Название (EN)</label><input type="text" id="a_n"><label>Название (UZ)</label><input type="text" id="a_nu">
  <label>Цена (например: 85 000 или 40 000 / 85 000)</label><input type="text" id="a_price">
  <label>Размер / крепость (например: 27% или 320|1000)</label><input type="text" id="a_meta">
- <label>Описание (RU)</label><textarea id="a_ru"></textarea>
+ <label>Описание (RU)</label><textarea id="a_ru"></textarea><label>Описание (UZ)</label><textarea id="a_uz"></textarea><label>Описание (EN)</label><textarea id="a_en"></textarea>
  <div class="row"><label><input type="checkbox" id="a_hide"> Скрыть из меню</label><label><input type="checkbox" id="a_off"> Стоп-лист</label></div>
  <div class="adm-btns"><button class="adm-ok" id="a_ok">Сохранить</button><button class="adm-no" id="a_no">Отмена</button>${isNew?'':'<button class="adm-del" id="a_rs">Сбросить правки</button>'}${isNew?'':'<button class="adm-del" id="a_dl">Скрыть/удалить</button>'}</div></div>`;
  document.body.appendChild(o);
  const g=id=>o.querySelector('#'+id);
  if(isNew){const sel=g('a_cat');cats.forEach(c=>{const op=document.createElement('option');op.value=c.id;op.textContent=c.nr||c.n;sel.appendChild(op)})}
- g('a_nr').value=i.nr||'';g('a_n').value=i.n||'';g('a_price').value=i.price||'';g('a_meta').value=i.meta||'';g('a_ru').value=i.ru||'';g('a_hide').checked=!!i.hide;g('a_off').checked=!!i.off;
+ g('a_nr').value=i.nr||'';g('a_n').value=i.n||'';g('a_price').value=i.price||'';g('a_meta').value=i.meta||'';g('a_ru').value=i.ru||'';g('a_uz').value=i.uz||'';g('a_en').value=i.en||'';g('a_nu').value=i.nu||'';g('a_hide').checked=!!i.hide;g('a_off').checked=!!i.off;
  const close=()=>o.remove();
  g('a_no').onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
  g('a_ok').onclick=()=>{
-  const v={nr:g('a_nr').value.trim(),n:g('a_n').value.trim()||g('a_nr').value.trim(),price:g('a_price').value.trim(),meta:g('a_meta').value.trim(),ru:g('a_ru').value.trim(),hide:g('a_hide').checked,off:g('a_off').checked};
+  const v={nr:g('a_nr').value.trim(),n:g('a_n').value.trim()||g('a_nr').value.trim(),price:g('a_price').value.trim(),meta:g('a_meta').value.trim(),ru:g('a_ru').value.trim(),uz:g('a_uz').value.trim(),en:g('a_en').value.trim(),nu:g('a_nu').value.trim(),hide:g('a_hide').checked,off:g('a_off').checked};
   if(!v.n){alert('Введите название');return}
   if(isNew){const it=Object.assign({id:'x'+Date.now(),cat:g('a_cat').value,uz:'',en:'',vs:'',sg:'',g:'',p1:'',bs:'',cc:'',nu:''},v);NEWI.push(it);D.items.push(it);byId[it.id]=it}
   else{OVR[i.id]=Object.assign(OVR[i.id]||{},v);Object.assign(i,v)}
@@ -279,17 +279,39 @@ function admModal(i,isNew){
  if(!isNew){g('a_rs').onclick=()=>{if(!confirm('Сбросить все ваши правки этой позиции?'))return;delete OVR[i.id];admSave();location.reload()};
   g('a_dl').onclick=()=>{OVR[i.id]=Object.assign(OVR[i.id]||{},{hide:true});i.hide=true;admSave();close();const y=scrollY;render();scrollTo(0,y)}}
 }
+
+function admField(box,label,id,val,ta){const l=document.createElement('label');l.textContent=label;box.appendChild(l);const e=document.createElement(ta?'textarea':'input');if(!ta)e.type='text';e.id=id;e.value=val||'';box.appendChild(e)}
+function admForm(title,fields,onOk,extra){
+ const o=document.createElement('div');o.className='adm-modal';const bx=document.createElement('div');bx.className='adm-box';o.appendChild(bx);
+ const h=document.createElement('h3');h.textContent=title;bx.appendChild(h);
+ fields.forEach(f=>admField(bx,f[0],'f_'+f[1],f[2],f[3]));
+ if(extra)extra(bx);
+ const bt=document.createElement('div');bt.className='adm-btns';bx.appendChild(bt);
+ const ok=document.createElement('button');ok.className='adm-ok';ok.textContent='Сохранить';const no=document.createElement('button');no.className='adm-no';no.textContent='Отмена';bt.appendChild(ok);bt.appendChild(no);
+ document.body.appendChild(o);const close=()=>o.remove();no.onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
+ ok.onclick=()=>{const v={};fields.forEach(f=>v[f[1]]=bx.querySelector('#f_'+f[1]).value.trim());onOk(v,bx);close()};
+ return bx}
+function admCat(c,isNew){
+ const f=[['Название (RU)','nr',c.nr],['Название (EN)','n',c.n],['Название (UZ)','nu',c.nu],['Описание (RU)','lru',c.lru,1],['Описание (UZ)','luz',c.luz,1],['Описание (EN)','len',c.len,1]];
+ admForm(isNew?'Новая категория':'Категория',f,(v,bx)=>{
+  const hide=bx.querySelector('#f_hidecat')?bx.querySelector('#f_hidecat').checked:false;
+  if(isNew){const nc=Object.assign({id:'y'+Date.now(),m:tab,style:'tea'},v);if(!nc.n)nc.n=nc.nr||'New';NEWC.push(nc);D.cats.push(nc)}
+  else{OVC[c.id]=Object.assign(OVC[c.id]||{},v,{hide});Object.assign(c,v,{hide})}
+  admSave();render()},
+  bx=>{if(!isNew){const l=document.createElement('label');l.style.cssText='display:flex;gap:6px;align-items:center;margin:12px 0;color:#333;font-size:14px';const k=document.createElement('input');k.type='checkbox';k.id='f_hidecat';k.checked=!!c.hide;l.appendChild(k);l.appendChild(document.createTextNode('Скрыть категорию из меню'));bx.appendChild(l)}})}
+function admSite(){
+ const S=D.site;admForm('Контакты',[['Адрес и часы RU','ar',S.ar],['Manzil UZ','au',S.au],['Address EN','ae',S.ae],['Телефон','phone',S.phone],['Instagram (без @)','ig',S.ig],['Telegram (без @)','tg',S.tg],['Ссылка на карту','map',S.map]],v=>{Object.assign(OVS,v);Object.assign(D.site,v);admSave();render()})}
 function admBar(){
  if(!ADMIN)return;const b=document.createElement('div');b.className='adm-bar';
- b.innerHTML='<span>АДМИН (только это устройство)</span><button id="ab_add">+ Позиция</button><button id="ab_exp">Экспорт</button><button id="ab_imp">Импорт</button><button id="ab_rst">Сбросить всё</button><button id="ab_out">Выйти</button>';
+ b.innerHTML='<span>АДМИН (только это устройство)</span><button id="ab_add">+ Позиция</button><button id="ab_cat">+ Категория</button><button id="ab_site">Контакты</button><button id="ab_exp">Экспорт</button><button id="ab_imp">Импорт</button><button id="ab_rst">Сбросить всё</button><button id="ab_out">Выйти</button>';
  document.body.appendChild(b);
- b.querySelector('#ab_add').onclick=()=>admModal({},true);
- b.querySelector('#ab_exp').onclick=()=>{const t=JSON.stringify({ovr:OVR,new:NEWI});if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>alert('Правки скопированы в буфер обмена'),()=>prompt('Скопируйте:',t));else prompt('Скопируйте:',t)};
- b.querySelector('#ab_imp').onclick=()=>{const t=prompt('Вставьте экспортированные правки:');if(!t)return;try{const j=JSON.parse(t);OVR=j.ovr||{};NEWI=j.new||[];admSave();location.reload()}catch(e){alert('Неверный формат')}};
- b.querySelector('#ab_rst').onclick=()=>{if(confirm('Удалить ВСЕ правки на этом устройстве?')){OVR={};NEWI=[];admSave();location.reload()}};
+ b.querySelector('#ab_add').onclick=()=>admModal({},true);b.querySelector('#ab_cat').onclick=()=>admCat({},true);b.querySelector('#ab_site').onclick=admSite;
+ b.querySelector('#ab_exp').onclick=()=>{const t=JSON.stringify({ovr:OVR,new:NEWI,site:OVS,cats:OVC,newc:NEWC});if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>alert('Правки скопированы в буфер обмена'),()=>prompt('Скопируйте:',t));else prompt('Скопируйте:',t)};
+ b.querySelector('#ab_imp').onclick=()=>{const t=prompt('Вставьте экспортированные правки:');if(!t)return;try{const j=JSON.parse(t);OVR=j.ovr||{};NEWI=j.new||[];OVS=j.site||{};OVC=j.cats||{};NEWC=j.newc||[];admSave();location.reload()}catch(e){alert('Неверный формат')}};
+ b.querySelector('#ab_rst').onclick=()=>{if(confirm('Удалить ВСЕ правки на этом устройстве?')){OVR={};NEWI=[];OVS={};OVC={};NEWC=[];admSave();location.reload()}};
  b.querySelector('#ab_out').onclick=()=>{try{localStorage.removeItem('agora_admin')}catch(e){}location.href=location.pathname}
 }
-document.addEventListener('click',e=>{const b=e.target.closest('[data-adm]');if(!b)return;e.stopPropagation();const it=byId[b.dataset.adm];if(it)admModal(it,false)},true);
+document.addEventListener('click',e=>{const bc=e.target.closest('[data-admcat]');if(bc){e.stopPropagation();const c=D.cats.find(x=>x.id===bc.dataset.admcat);if(c)admCat(c,false);return}const b=e.target.closest('[data-adm]');if(!b)return;e.stopPropagation();const it=byId[b.dataset.adm];if(it)admModal(it,false)},true);
 admBar();
 document.addEventListener('click',e=>{if(e.target.id==='admtoggle'){try{if(ADMIN)localStorage.removeItem('agora_admin');else localStorage.setItem('agora_admin','1')}catch(x){}location.reload()}});
 window.addEventListener('hashchange',()=>render());render();
