@@ -354,7 +354,7 @@ document.addEventListener('click',e=>{const bc=e.target.closest('[data-admcat]')
 async function ADMASK(){let bad=+(localStorage.getItem('agora_bad')||0);if(bad>=5){admToast('Слишком много попыток');return}
  const c=await admAsk('Код доступа:');if(!c)return;
  try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('agora-admin-v2:'+c.trim()));const h=[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  if(h==='4f60bc691ea02d47c8d4029d70fcc84c7a407645a072b3c14b81bc5d5c7cbd52'){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');localStorage.removeItem('agora_bad');location.reload()}else{localStorage.setItem('agora_bad',bad+1);admToast('Неверный код')}}catch(x){admToast('Не удалось проверить код')}}
+  if(h==='7bce065d6288378a680691a1e9d247d58d87b17959a7bdae9a9667da4897d3bc'){localStorage.setItem('agora_dev','1');localStorage.setItem('agora_admin','1');localStorage.removeItem('agora_bad');location.reload()}else{localStorage.setItem('agora_bad',bad+1);admToast('Неверный код')}}catch(x){admToast('Не удалось проверить код')}}
 document.addEventListener('click',e=>{if(e.target.id==='admtoggle'&&!DEV){e.stopImmediatePropagation();ADMASK()}},true);
 (function(){if(!PUBLIC_HOST||DEV)return;let n=0,t=0;document.addEventListener('click',e=>{const f=e.target.closest('.place-content__footer');if(!f)return;const now=Date.now();if(now-t>6000)n=0;t=now;n++;if(n<7)return;n=0;ADMASK()})})();
 admBar();
